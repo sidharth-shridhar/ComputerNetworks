@@ -64,9 +64,6 @@ public class peerProcess {
             }
             peerInfo.close();
 
-//            for(PeerInfo peer : peers.values()){
-//                System.out.println(peer.getHost() + ":" + peer.getPort() + ":" + asdfasf peer.getHaveFile());
-//            }
 
             /*
             *   Read Common.cfg file. Each line contains values of some variables.
@@ -103,7 +100,7 @@ public class peerProcess {
                 completedPeers++;
                 Arrays.fill(bitfield, 1);
                 thisPeer.setBitfield(bitfield);
-                //Dividing File into pieces and storing them into array of pieces.
+                //Dividing file to be transfered into pieces and storing their locations
                 BufferedInputStream file = new BufferedInputStream(new FileInputStream(directory.getAbsolutePath() + "/" + common.getFileName()));
                 byte[] fileBytes = new byte[fileSize];
                 file.read(fileBytes);
@@ -111,14 +108,11 @@ public class peerProcess {
                 int part = 0;
 
                 for (int counter = 0; counter < fileSize; counter += pieceSize) {
-                    //byte[] pieceBytes = Arrays.copyOfRange(fileBytes, counter, counter + pieceSize);
                     if (counter + pieceSize <= fileSize)
                         filePieces[part] = Arrays.copyOfRange(fileBytes, counter, counter + pieceSize);
                     else
                         filePieces[part] = Arrays.copyOfRange(fileBytes, counter, fileSize);
-//                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("Common_" + part + ".cfg"));
-//                    bos.write(pieces[part]);
-//                    bos.close();
+
                     part++;
                     thisPeer.updateNumOfPieces();
                 }
@@ -126,7 +120,6 @@ public class peerProcess {
                 Arrays.fill(bitfield, 0);
                 thisPeer.setBitfield(bitfield);
             }
-            //System.out.println(thisPeer.getNumOfPieces());
 
             /*
             *   Connections are established with peers.
@@ -136,7 +129,6 @@ public class peerProcess {
              */
 
             peerConnections = new ConcurrentHashMap<>();
-            //unchokedPeers = new ArrayList<>();
             SendConnections sendConnections = new SendConnections();
             sendConnections.start();
             ReceiveConnections receiveConnections = new ReceiveConnections();
@@ -146,7 +138,6 @@ public class peerProcess {
             OptimisticUnchokePeer optimisticUnchokePeer = new OptimisticUnchokePeer();
             optimisticUnchokePeer.start();
         } catch (Exception e) {
-//            e.printStackTrace();
         }
     }
 
@@ -182,7 +173,6 @@ public class peerProcess {
                 }
             }
             catch(Exception e){
-//                e.printStackTrace();
             }
         }
     }
@@ -210,13 +200,10 @@ public class peerProcess {
                 }
             }
             catch(Exception e){
-//                e.printStackTrace();
             }
         }
     }
-    public void yogi(){
-        return;
-    }
+    
     private static class UnchokePeers extends Thread{
         @Override
         public void run(){
@@ -301,7 +288,6 @@ public class peerProcess {
                     Thread.sleep(common.getUnchokingInterval() * 1000);
                 }
                 catch(Exception e){
-//                    e.printStackTrace();
                 }
             }
             try{
@@ -338,7 +324,6 @@ public class peerProcess {
                         peerConnections.get(connection).optimisticallyChoke();
                     }
                     catch(Exception e){
-//                        e.printStackTrace();
                     }
                 }
             }
@@ -465,7 +450,6 @@ public class peerProcess {
                 dataOutputStream.flush();
             }
             catch(Exception e){
-//                e.printStackTrace();
             }
         }
 
@@ -523,7 +507,6 @@ public class peerProcess {
                     completedPeers++;
                 }
                 catch (IOException e) {
-//                    e.printStackTrace();
                 }
             }
         }
@@ -660,7 +643,6 @@ public class peerProcess {
                         System.exit(0);
                     }
                     catch(Exception e){
-//                        e.printStackTrace();
                     }
                 }
             }
