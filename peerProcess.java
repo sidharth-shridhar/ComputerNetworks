@@ -65,7 +65,7 @@ public class peerProcess {
             peerInfo.close();
 
 //            for(PeerInfo peer : peers.values()){
-//                System.out.println(peer.getHost() + ":" + peer.getPort() + ":" + peer.getHaveFile());
+//                System.out.println(peer.getHost() + ":" + peer.getPort() + ":" + asdfasf peer.getHaveFile());
 //            }
 
             /*
