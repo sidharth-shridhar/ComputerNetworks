@@ -6,6 +6,511 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+class PeerInfo extends Thread{
+    private int peerID;
+    private String hostName;
+    private int portNumber;
+    private int haveFile;
+    private int[] bitfield;
+    private int numOfPieces = 0;
+
+    public void printBitfield(){
+        for(int bit : bitfield)
+            System.out.print(bit);
+    }
+
+    public int getNumOfPieces() {
+        return numOfPieces;
+    }
+
+    public void updateNumOfPieces() {
+        this.numOfPieces++;
+        if(this.numOfPieces == bitfield.length)
+            this.haveFile = 1;
+    }
+
+    public int getPeerID() {
+        return peerID;
+    }
+
+    public void setPeerID(int peerID) {
+        this.peerID = peerID;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
+    }
+
+    public int getHaveFile() {
+        return haveFile;
+    }
+
+    public void setHaveFile(int haveFile) {
+        this.haveFile = haveFile;
+    }
+
+    public int[] getBitfield() {
+        return bitfield;
+    }
+
+    public void setBitfield(int[] bitfield) {
+        this.bitfield = bitfield;
+    }
+
+    public void updateBitfield(int index){
+        bitfield[index] = 1;
+    }
+}
+
+class Messages{
+    private static final char CHOKE = '0';
+    private static final char UNCHOKE = '1';
+    private static final char INTERESTED = '2';
+    private static final char NOT_INTERESTED = '3';
+    private static final char HAVE = '4';
+    private static final char BITFIELD = '5';
+    private static final char REQUEST = '6';
+    private static final char PIECE = '7';
+
+    public byte[] makeMessage(int len, char type, byte[] payload){
+        byte[] message;
+        byte[] length;
+        byte msgType = (byte)type;
+        int counter;
+        switch(type){
+            case CHOKE:
+            case UNCHOKE:
+            case INTERESTED:
+            case NOT_INTERESTED:
+                message = new byte[len + 4];
+                length = ByteBuffer.allocate(4).putInt(len).array();
+                counter = 0;
+                for(byte x : length) {
+                    message[counter] = x;
+                    counter++;
+                }
+                message[counter] = msgType;
+                break;
+            case HAVE:
+            case BITFIELD:
+            case REQUEST:
+            case PIECE:
+                message = new byte[len + 4];
+                length = ByteBuffer.allocate(4).putInt(len).array();
+                counter = 0;
+                for(byte x : length) {
+                    message[counter] = x;
+                    counter++;
+                }
+                message[counter++] = msgType;
+                for(byte x : payload) {
+                    message[counter] = x;
+                    counter++;
+                }
+                break;
+            default:
+                message = new byte[0];
+                System.out.println("ERROR in Message: " + type);
+        }
+        return message;
+    }
+
+    public byte[] getChokeMessage(){
+        return makeMessage(1, CHOKE, null);
+    }
+
+    public byte[] getUnchokeMessage(){
+        return makeMessage(1, UNCHOKE, null);
+    }
+
+    public byte[] getInterestedMessage(){
+        return makeMessage(1, INTERESTED, null);
+    }
+
+    public byte[] getNotInterestedMessage(){
+        return makeMessage(1, NOT_INTERESTED, null);
+    }
+
+    public byte[] getHaveMessage(int pieceIndex){
+        byte[] payload = ByteBuffer.allocate(4).putInt(pieceIndex).array();
+        return makeMessage(5, HAVE, payload);
+    }
+
+    public byte[] getBitfieldMessage(int[] bitfield){
+        int len = 1 + (4 * bitfield.length);
+        byte[] payload = new byte[len - 1];
+        int counter = 0;
+        for(int bit : bitfield){
+            byte[] bitBytes = ByteBuffer.allocate(4).putInt(bit).array();
+            for(byte b : bitBytes){
+                payload[counter] = b;
+                counter++;
+            }
+        }
+        return makeMessage(len, BITFIELD, payload);
+    }
+
+    public byte[] getRequestMessage(int pieceIndex){
+        byte[] payload = ByteBuffer.allocate(4).putInt(pieceIndex).array();
+        return makeMessage(5, REQUEST, payload);
+    }
+
+    public byte[] getPieceMessage(int pieceIndex, byte[] piece){
+        byte[] payload = new byte[4 + piece.length];
+        int counter = 0;
+        byte[] indexBytes = ByteBuffer.allocate(4).putInt(pieceIndex).array();
+        for(byte bit : indexBytes){
+            payload[counter] = bit;
+            counter++;
+        }
+        for(byte bit : piece){
+            payload[counter] = bit;
+            counter++;
+        }
+        return makeMessage((5 + piece.length), PIECE, payload);
+    }
+
+    public byte[] getHandshakeMessage(int peerID){
+        byte[] message = new byte[32];
+        byte[] header = new String("P2PFILESHARINGPROJ").getBytes();
+        byte[] zerobits = new String("0000000000").getBytes();
+        byte[] id = ByteBuffer.allocate(4).putInt(peerID).array();
+        int counter = 0;
+        for(byte b : header){
+            message[counter] = b;
+            counter++;
+        }
+        for(byte b : zerobits){
+            message[counter] = b;
+            counter++;
+        }
+        for(byte b : id){
+            message[counter] = b;
+            counter++;
+        }
+        return message;
+    }
+}
+
+class CommonInfo
+{
+    private int numberOfPreferredNeighbors;
+    private int unchokingInterval;
+    private int optimisticUnchokingInterval;
+    private String fileName;
+    private int fileSize;
+    private int pieceSize;
+
+    //setting no of preferred neighbors
+    public void setNumberOfPreferredNeighbors(int k){
+        numberOfPreferredNeighbors = k;
+    }
+
+    //getting no of preferred neighbors
+    public int getNumberOfPreferredNeighbors(){
+        return numberOfPreferredNeighbors;
+    }
+
+    //setting unchokingInterval
+    public void setUnchokingInterval(int u){
+        unchokingInterval = u;
+    }
+
+    //getting unchokingInterval
+    public int getUnchokingInterval(){
+        return unchokingInterval;
+    }
+    //setting optimisticUnchokingInterval
+    public void setOptimisticUnchokingInterval(int o){
+        optimisticUnchokingInterval = o;
+    }
+
+    //getting optimisticUnchokingInterval
+    public int getOptimisticUnchokingInterval(){
+        return optimisticUnchokingInterval;
+    }
+
+    //setting filename
+    public void setFileName(String f){
+        fileName = f;
+    }
+
+    //getting fileName
+    public String getFileName(){
+        return fileName;
+    }
+    //setting fileSize
+    public void setFileSize(int size){
+        fileSize = size;
+    }
+
+    //getFileSize
+    public int getFileSize(){
+        return fileSize;
+    }
+
+    //setting pieceSize
+    public void setPieceSize(int psize){
+        pieceSize = psize;
+    }
+    //getting pieceSize
+    public int getPieceSize(){
+        return pieceSize;
+    }
+}
+
+class Logs{
+    private DateFormat timeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private Date time = new Date();
+    private BufferedWriter writer;
+
+    public Logs(BufferedWriter writer){
+        timeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        this.writer = writer;
+    }
+
+    public void connectionTo(int id1,int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" makes a connection to Peer ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+      
+        }
+    }
+
+    public void connectionFrom(int id1, int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" is connected from Peer ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void changePreferredNeighbors(int id1, int[] ids){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" has the preferred neighbors ");
+        for(int id : ids){
+            log.append(id);
+            log.append(',');
+        }
+        log.deleteCharAt(log.length() - 1);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void changeOptimisticallyUnchokedNeighbor(int id1, int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" has the optimistically unchoked neighbor ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void unchoked(int id1, int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" is unchoked by ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void choked(int id1, int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" is choked by ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void receiveHave(int id1, int id2, int index){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" received the 'have' message from ");
+        log.append(id2);
+        log.append(" for the piece ");
+        log.append(index);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void receiveInterested(int id1, int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" received the 'interested' message from ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void receiveNotInterested(int id1, int id2){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" received the 'not interested' message from ");
+        log.append(id2);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void downloadingPiece(int id1, int id2, int index, int numOfPieces){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" has downloaded the piece ");
+        log.append(index);
+        log.append(" from ");
+        log.append(id2);
+        log.append(".\n");
+        log.append("Now the number of pieces it has is ");
+        log.append(numOfPieces);
+        log.append('.');
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    public void downloadCompleted(int id1){
+        time = new Date();
+        StringBuffer log = new StringBuffer();
+        log.append(timeFormat.format(time));
+        log.append(':');
+        log.append(" Peer ");
+        log.append(id1);
+        log.append(" has downloaded the complete file ");
+        try{
+            writer.write(log.toString());
+            writer.newLine();
+            writer.flush();
+        }
+        catch(Exception e){
+
+        }
+    }
+
+}
 
 public class peerProcess {
     private static final char CHOKE = '0';
@@ -32,7 +537,7 @@ public class peerProcess {
         hostID = Integer.parseInt(args[0]);
         try {
             /*
-            *   Create the file directory corresponding to this peer.
+            *   Create director to store received files for peers.
              */
             directory = new File("peer_" + hostID);
             if (directory.exists() == false) {
@@ -63,7 +568,6 @@ public class peerProcess {
                 peers.put(peer.getPeerID(), peer);
             }
             peerInfo.close();
-
 
             /*
             *   Read Common.cfg file. Each line contains values of some variables.
@@ -100,7 +604,7 @@ public class peerProcess {
                 completedPeers++;
                 Arrays.fill(bitfield, 1);
                 thisPeer.setBitfield(bitfield);
-                //Dividing file to be transfered into pieces and storing their locations
+                //Dividing File into pieces and storing them into array of pieces.
                 BufferedInputStream file = new BufferedInputStream(new FileInputStream(directory.getAbsolutePath() + "/" + common.getFileName()));
                 byte[] fileBytes = new byte[fileSize];
                 file.read(fileBytes);
@@ -108,11 +612,11 @@ public class peerProcess {
                 int part = 0;
 
                 for (int counter = 0; counter < fileSize; counter += pieceSize) {
+                    //byte[] pieceBytes = Arrays.copyOfRange(fileBytes, counter, counter + pieceSize);
                     if (counter + pieceSize <= fileSize)
                         filePieces[part] = Arrays.copyOfRange(fileBytes, counter, counter + pieceSize);
                     else
                         filePieces[part] = Arrays.copyOfRange(fileBytes, counter, fileSize);
-
                     part++;
                     thisPeer.updateNumOfPieces();
                 }
@@ -120,7 +624,6 @@ public class peerProcess {
                 Arrays.fill(bitfield, 0);
                 thisPeer.setBitfield(bitfield);
             }
-
             /*
             *   Connections are established with peers.
             *   There are two types of connections.
@@ -173,6 +676,7 @@ public class peerProcess {
                 }
             }
             catch(Exception e){
+
             }
         }
     }
@@ -200,10 +704,11 @@ public class peerProcess {
                 }
             }
             catch(Exception e){
+
             }
         }
     }
-    
+
     private static class UnchokePeers extends Thread{
         @Override
         public void run(){
@@ -288,6 +793,7 @@ public class peerProcess {
                     Thread.sleep(common.getUnchokingInterval() * 1000);
                 }
                 catch(Exception e){
+
                 }
             }
             try{
@@ -324,6 +830,7 @@ public class peerProcess {
                         peerConnections.get(connection).optimisticallyChoke();
                     }
                     catch(Exception e){
+
                     }
                 }
             }
@@ -426,7 +933,6 @@ public class peerProcess {
                 dataOutputStream.flush();
             }
             catch(Exception e){
-//                e.printStackTrace();
             }
         }
 
@@ -442,6 +948,25 @@ public class peerProcess {
                         dataOutputStream.write(msg.getRequestMessage(index));
                         break;
                     case PIECE:
+                        /*int fileSize = common.getFileSize();
+                        int pieceSize = common.getPieceSize();
+                        int size1 = pieceSize;
+                        int numOfPieces = fileSize / pieceSize;
+                        BufferedInputStream partfile = new BufferedInputStream(new FileInputStream(directory.getAbsolutePath() + "/" + common.getFileName() + ".part" + index ));
+                            if(index == numOfPieces)
+                                {
+                                size1 = fileSize - (pieceSize * numOfPieces);
+                                byte[] tempbytes = new byte[size1];
+                                partfile.read(tempbytes);
+                                partfile.close();
+                                dataOutputStream.write(msg.getPieceMessage(index, tempbytes));
+                                }
+                            else{
+                                byte[] tempbytes = new byte[size1];
+                                partfile.read(tempbytes);
+                                partfile.close();
+                                dataOutputStream.write(msg.getPieceMessage(index, tempbytes));
+                            }*/
                         dataOutputStream.write(msg.getPieceMessage(index, filePieces[index]));
                         break;
                     default:
@@ -454,8 +979,8 @@ public class peerProcess {
         }
 
         public void compareBitfield(int[] thisPeerBitfield, int[] connectedPeerBitfield, int len){
-            int i;
-            for(i = 0; i < len; i++){
+            int i = 0;
+            for( i = 0; i < len; i++){
                 if(thisPeerBitfield[i] == 0 && connectedPeerBitfield[i] == 1){
                     sendMessage(INTERESTED);
                     break;
@@ -490,24 +1015,75 @@ public class peerProcess {
                 logs.downloadCompleted(thisPeer.getPeerID());
                 counter = 0;
                 byte[] merge = new byte[common.getFileSize()];
-                for(byte[] piece : filePieces){
+                /*for(byte[] piece : filePieces){
                     for(byte b : piece){
                         merge[counter] = b;
                         counter++;
                     }
+                }*/
+                //byte[] merge1 = new byte[common.getFileSize()];
+                counter = 0;
+                try{ 
+                FileOutputStream file1 = new FileOutputStream(directory.getAbsolutePath() + "/" + common.getFileName());
+                BufferedOutputStream bos1 = new BufferedOutputStream(file1);
+                int fileSize = common.getFileSize();
+                int pieceSize = common.getPieceSize();
+                int size1 = pieceSize;
+                int numOfPieces = fileSize / pieceSize;
+                
+                for(int i = 0; i <= numOfPieces ; i++)
+                {
+                    BufferedInputStream partfile = new BufferedInputStream(new FileInputStream(directory.getAbsolutePath() + "/" + common.getFileName() + ".part" + i ));
+                    if(i == numOfPieces)
+                    {
+                        size1 = fileSize - (pieceSize * i);
+                        System.out.println(size1); 
+                        byte[] tempbytes = new byte[size1];
+                        partfile.read(tempbytes);
+                        partfile.close();
+                        File part = new File(directory.getAbsolutePath() + "/" + common.getFileName() + ".part" + i );
+                        part.delete();
+                        bos1.write(tempbytes);
+                    /*for(byte b : tempbytes){
+                        merge1[counter] = b;
+                        counter++;
+                    }*/
+                    }
+                    else{
+                    byte[] tempbytes = new byte[size1];
+                    partfile.read(tempbytes);
+                    partfile.close();
+                    File part = new File(directory.getAbsolutePath() + "/" + common.getFileName() + ".part" + i );
+                    part.delete();
+                    bos1.write(tempbytes);
+                    /*for(byte b : tempbytes){
+                        merge1[counter] = b;
+                        counter++;
+                    }*/
+
                 }
-                try {
-                    FileOutputStream file = new FileOutputStream(directory.getAbsolutePath() + "/" + common.getFileName());
-                    BufferedOutputStream bos = new BufferedOutputStream(file);
-                    bos.write(merge);
-                    bos.close();
-                    file.close();
-                    System.out.println("File Download Completed.");
+                
+                }
+                bos1.close();
+                file1.close();
+                System.out.println("File Download Completed. test file" );
+                thisPeer.setHaveFile(1);
+                completedPeers++;
+            }
+            catch (IOException e){
+                
+            }
+              /*  try {
+                  //  FileOutputStream file = new FileOutputStream(directory.getAbsolutePath() + "/" + common.getFileName());
+                   // BufferedOutputStream bos = new BufferedOutputStream(file);
+                   // bos.write(merge1);
+                   // bos.close();
+                   // file.close();
+                  //  System.out.println("File Download Completed.");
                     thisPeer.setHaveFile(1);
                     completedPeers++;
-                }
-                catch (IOException e) {
-                }
+                } catch (IOException e) {
+                }*/
             }
         }
 
@@ -608,10 +1184,17 @@ public class peerProcess {
                                     index = ByteBuffer.wrap(Arrays.copyOfRange(msg, 0, 4)).getInt();
                                     counter = 0;
                                     filePieces[index] = new byte[msg.length - 4];
+                                    byte[] msg1 = new byte[msg.length - 4];
                                     for(int i = 4; i < msg.length; i++){
                                         filePieces[index][counter] = msg[i];
+                                        msg1[counter] = msg[i];
                                         counter++;
                                     }
+                                    FileOutputStream file = new FileOutputStream(directory.getAbsolutePath() + "/" + common.getFileName() + ".part" + index);
+                                    BufferedOutputStream bos = new BufferedOutputStream(file);
+                                    bos.write(msg1);
+                                    bos.close();
+                                    file.close();
                                     thisPeer.updateBitfield(index);
                                     thisPeer.updateNumOfPieces();
                                     if(!peer.isChoked()){
