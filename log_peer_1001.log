@@ -1,60 +1,60 @@
-2019/04/12 00:32:30: Peer 1001 has the preferred neighbors 0,0.
-2019/04/12 00:32:32: Peer 1001 is connected from Peer 1002.
-2019/04/12 00:32:33: Peer 1001 received the 'interested' message from 1002.
-2019/04/12 00:32:33: Peer 1001 has the optimistically unchoked neighbor 1002.
-2019/04/12 00:32:33: Peer 1001 received the 'have' message from 1002 for the piece 5.
-2019/04/12 00:32:33: Peer 1001 received the 'have' message from 1002 for the piece 1.
-2019/04/12 00:32:33: Peer 1001 is choked by 1002.
-2019/04/12 00:32:33: Peer 1001 received the 'have' message from 1002 for the piece 4.
-2019/04/12 00:32:34: Peer 1001 is connected from Peer 1003.
-2019/04/12 00:32:34: Peer 1001 received the 'interested' message from 1003.
-2019/04/12 00:32:34: Peer 1001 received the 'have' message from 1003 for the piece 5.
-2019/04/12 00:32:34: Peer 1001 received the 'have' message from 1003 for the piece 1.
-2019/04/12 00:32:34: Peer 1001 received the 'have' message from 1003 for the piece 4.
-2019/04/12 00:32:35: Peer 1001 has the preferred neighbors 0,0.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1002 for the piece 7.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1003 for the piece 0.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1003 for the piece 2.
-2019/04/12 00:32:35: Peer 1001 is choked by 1003.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1002 for the piece 3.
-2019/04/12 00:32:35: Peer 1001 is choked by 1002.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1003 for the piece 3.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1002 for the piece 2.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1002 for the piece 2.
-2019/04/12 00:32:35: Peer 1001 received the 'have' message from 1002 for the piece 0.
-2019/04/12 00:32:36: Peer 1001 is connected from Peer 1004.
-2019/04/12 00:32:36: Peer 1001 received the 'interested' message from 1004.
-2019/04/12 00:32:37: Peer 1001 received the 'have' message from 1004 for the piece 5.
-2019/04/12 00:32:38: Peer 1001 received the 'have' message from 1004 for the piece 7.
-2019/04/12 00:32:38: Peer 1001 received the 'have' message from 1004 for the piece 1.
-2019/04/12 00:32:38: Peer 1001 received the 'have' message from 1003 for the piece 7.
-2019/04/12 00:32:38: Peer 1001 is connected from Peer 1005.
-2019/04/12 00:32:38: Peer 1001 received the 'interested' message from 1005.
-2019/04/12 00:32:39: Peer 1001 received the 'have' message from 1005 for the piece 0.
-2019/04/12 00:32:39: Peer 1001 received the 'have' message from 1005 for the piece 5.
-2019/04/12 00:32:39: Peer 1001 received the 'have' message from 1005 for the piece 2.
-2019/04/12 00:32:39: Peer 1001 received the 'have' message from 1004 for the piece 0.
-2019/04/12 00:32:39: Peer 1001 received the 'have' message from 1004 for the piece 2.
-2019/04/12 00:32:39: Peer 1001 is connected from Peer 1006.
-2019/04/12 00:32:39: Peer 1001 received the 'interested' message from 1006.
-2019/04/12 00:32:40: Peer 1001 has the preferred neighbors 1005,1004.
-2019/04/12 00:32:40: Peer 1001 received the 'have' message from 1004 for the piece 6.
-2019/04/12 00:32:40: Peer 1001 received the 'have' message from 1005 for the piece 4.
-2019/04/12 00:32:40: Peer 1001 received the 'have' message from 1004 for the piece 3.
-2019/04/12 00:32:40: Peer 1001 received the 'have' message from 1005 for the piece 7.
-2019/04/12 00:32:40: Peer 1001 is choked by 1005.
-2019/04/12 00:32:40: Peer 1001 received the 'have' message from 1005 for the piece 6.
-2019/04/12 00:32:40: Peer 1001 is choked by 1004.
-2019/04/12 00:32:40: Peer 1001 received the 'have' message from 1004 for the piece 4.
-2019/04/12 00:32:41: Peer 1001 received the 'have' message from 1003 for the piece 6.
-2019/04/12 00:32:41: Peer 1001 received the 'have' message from 1002 for the piece 6.
-2019/04/12 00:32:42: Peer 1001 received the 'have' message from 1005 for the piece 1.
-2019/04/12 00:32:42: Peer 1001 received the 'have' message from 1006 for the piece 4.
-2019/04/12 00:32:42: Peer 1001 received the 'have' message from 1006 for the piece 3.
-2019/04/12 00:32:43: Peer 1001 received the 'have' message from 1006 for the piece 6.
-2019/04/12 00:32:43: Peer 1001 received the 'have' message from 1005 for the piece 3.
-2019/04/12 00:32:43: Peer 1001 received the 'have' message from 1006 for the piece 2.
-2019/04/12 00:32:43: Peer 1001 received the 'have' message from 1006 for the piece 5.
-2019/04/12 00:32:43: Peer 1001 received the 'have' message from 1006 for the piece 0.
-2019/04/12 00:32:44: Peer 1001 received the 'have' message from 1006 for the piece 1.
-2019/04/12 00:32:44: Peer 1001 received the 'have' message from 1006 for the piece 7.
+2019/04/15 15:33:00: Peer 1001 has the preferred neighbors 0,0.
+2019/04/15 15:33:03: Peer 1001 is connected from Peer 1002.
+2019/04/15 15:33:03: Peer 1001 received the 'interested' message from 1002.
+2019/04/15 15:33:03: Peer 1001 has the optimistically unchoked neighbor 1002.
+2019/04/15 15:33:03: Peer 1001 received the 'have' message from 1002 for the piece 0.
+2019/04/15 15:33:03: Peer 1001 received the 'have' message from 1002 for the piece 4.
+2019/04/15 15:33:03: Peer 1001 is choked by 1002.
+2019/04/15 15:33:03: Peer 1001 received the 'have' message from 1002 for the piece 6.
+2019/04/15 15:33:05: Peer 1001 is connected from Peer 1003.
+2019/04/15 15:33:05: Peer 1001 received the 'interested' message from 1003.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1003 for the piece 0.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1003 for the piece 4.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1003 for the piece 6.
+2019/04/15 15:33:05: Peer 1001 has the preferred neighbors 0,0.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1002 for the piece 7.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1003 for the piece 3.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1002 for the piece 5.
+2019/04/15 15:33:05: Peer 1001 is choked by 1002.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1003 for the piece 1.
+2019/04/15 15:33:05: Peer 1001 is choked by 1003.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1002 for the piece 3.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1003 for the piece 2.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1002 for the piece 1.
+2019/04/15 15:33:05: Peer 1001 received the 'have' message from 1002 for the piece 2.
+2019/04/15 15:33:07: Peer 1001 is connected from Peer 1004.
+2019/04/15 15:33:07: Peer 1001 received the 'interested' message from 1004.
+2019/04/15 15:33:08: Peer 1001 received the 'have' message from 1004 for the piece 4.
+2019/04/15 15:33:08: Peer 1001 received the 'have' message from 1004 for the piece 5.
+2019/04/15 15:33:08: Peer 1001 received the 'have' message from 1004 for the piece 3.
+2019/04/15 15:33:08: Peer 1001 received the 'have' message from 1003 for the piece 5.
+2019/04/15 15:33:09: Peer 1001 is connected from Peer 1005.
+2019/04/15 15:33:09: Peer 1001 received the 'interested' message from 1005.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1005 for the piece 4.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1005 for the piece 5.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1005 for the piece 1.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1004 for the piece 1.
+2019/04/15 15:33:10: Peer 1001 has the preferred neighbors 1004,1003.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1004 for the piece 6.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1004 for the piece 2.
+2019/04/15 15:33:10: Peer 1001 is choked by 1004.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1003 for the piece 7.
+2019/04/15 15:33:10: Peer 1001 received the 'have' message from 1004 for the piece 7.
+2019/04/15 15:33:10: Peer 1001 is choked by 1003.
+2019/04/15 15:33:11: Peer 1001 is connected from Peer 1006.
+2019/04/15 15:33:11: Peer 1001 received the 'interested' message from 1006.
+2019/04/15 15:33:12: Peer 1001 received the 'have' message from 1006 for the piece 2.
+2019/04/15 15:33:12: Peer 1001 received the 'have' message from 1006 for the piece 3.
+2019/04/15 15:33:12: Peer 1001 received the 'have' message from 1006 for the piece 4.
+2019/04/15 15:33:12: Peer 1001 received the 'have' message from 1005 for the piece 2.
+2019/04/15 15:33:12: Peer 1001 received the 'have' message from 1005 for the piece 3.
+2019/04/15 15:33:13: Peer 1001 received the 'have' message from 1005 for the piece 6.
+2019/04/15 15:33:13: Peer 1001 received the 'have' message from 1005 for the piece 0.
+2019/04/15 15:33:13: Peer 1001 received the 'have' message from 1004 for the piece 0.
+2019/04/15 15:33:13: Peer 1001 received the 'have' message from 1005 for the piece 7.
+2019/04/15 15:33:15: Peer 1001 received the 'have' message from 1006 for the piece 6.
+2019/04/15 15:33:15: Peer 1001 received the 'have' message from 1006 for the piece 5.
+2019/04/15 15:33:15: Peer 1001 received the 'have' message from 1006 for the piece 1.
+2019/04/15 15:33:15: Peer 1001 has the preferred neighbors 1006,1003.
+2019/04/15 15:33:15: Peer 1001 received the 'have' message from 1006 for the piece 7.
+2019/04/15 15:33:15: Peer 1001 received the 'have' message from 1006 for the piece 0.
