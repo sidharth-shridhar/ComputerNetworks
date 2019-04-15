@@ -533,13 +533,6 @@ public class peerProcess {
     private static int completedPeers = 0;
     private static File directory;
 
-    public static void setConfig(PeerInfo peer, String[] parts, LinkedHashMap<Integer, PeerInfo> peers){
-        peer.setPeerID(Integer.parseInt(parts[0]));
-        peer.setHostName(parts[1]);
-        peer.setPortNumber(Integer.parseInt(parts[2]));
-        peer.setHaveFile(Integer.parseInt(parts[3]));
-        peers.put(peer.getPeerID(), peer);
-    }
     public static void main(String[] args) {
         hostID = Integer.parseInt(args[0]);
         try {
@@ -568,7 +561,11 @@ public class peerProcess {
             for (Object line : peerInfo.lines().toArray()) {
                 String[] parts = ((String) line).split(" ");
                 PeerInfo peer = new PeerInfo();
-                setConfig(peer, parts,peers);
+                peer.setPeerID(Integer.parseInt(parts[0]));
+                peer.setHostName(parts[1]);
+                peer.setPortNumber(Integer.parseInt(parts[2]));
+                peer.setHaveFile(Integer.parseInt(parts[3]));
+                peers.put(peer.getPeerID(), peer);
             }
             peerInfo.close();
 
@@ -1121,100 +1118,15 @@ public class peerProcess {
                             }
                             int index;
                             int bits;
-
-                            if(msgType == CHOKE){
-                                logs.choked(thisPeer.getPeerID(), peer.peerID);
-                                peer.choke();
-                            }
-                            else if(msgType == UNCHOKE){
-                                peer.unchoke();
-                                logs.unchoked(thisPeer.getPeerID(), peer.peerID);
-                                peer.getPieceIndex(thisPeer.getBitfield(), peers.get(peer.peerID).getBitfield(), thisPeer.getBitfield().length);
-                            }
-                            else if(msgType == INTERESTED){
-                                logs.receiveInterested(thisPeer.getPeerID(), peer.peerID);
-                                peer.setInterested();
-                            }
-                            else if(msgType == NOT_INTERESTED){
-                                logs.receiveNotInterested(thisPeer.getPeerID(), peer.peerID);
-                                peer.setNotInterested();
-                                if(!peer.isChoked()){
+                            switch (msgType){
+                                case CHOKE:
+                                    logs.choked(thisPeer.getPeerID(), peer.peerID);
                                     peer.choke();
-                                    peer.sendMessage(CHOKE);
-                                }
-                            }
-                            else if(msgType == HAVE){
-                                index = ByteBuffer.wrap(msg).getInt();
-                                peers.get(peer.getPeerID()).updateBitfield(index);
-                                bits = 0;
-                                for(int x : peers.get(peer.getPeerID()).getBitfield()){
-                                    if(x == 1)
-                                        bits++;
-                                }
-                                if(bits == thisPeer.getBitfield().length){
-                                    peers.get(peer.getPeerID()).setHaveFile(1);
-                                    completedPeers++;
-                                }
-                                peer.compareBitfield(thisPeer.getBitfield(), peers.get(peer.getPeerID()).getBitfield(), thisPeer.getBitfield().length);
-                                logs.receiveHave(thisPeer.getPeerID(), peer.getPeerID(), index); 
-                            }
-                            else if(msgType == BITFIELD){
-                                int[] bitfield = new int[msg.length/4];
-                                counter = 0;
-                                for(int i = 0; i < msg.length; i += 4){
-                                    bitfield[counter] = ByteBuffer.wrap(Arrays.copyOfRange(msg, i, i + 4)).getInt();
-                                    counter++;
-                                }
-                                peers.get(peer.peerID).setBitfield(bitfield);
-                                bits = 0;
-                                for(int x : peers.get(peer.getPeerID()).getBitfield()){
-                                    if(x == 1)
-                                        bits++;
-                                }
-                                if(bits == thisPeer.getBitfield().length){
-                                    peers.get(peer.getPeerID()).setHaveFile(1);
-                                    completedPeers++;
-                                }
-                                else{
-                                    peers.get(peer.getPeerID()).setHaveFile(0);
-                                }
-                                peer.compareBitfield(thisPeer.getBitfield(), bitfield, bitfield.length);  
-                            }
-                            else if(msgType == REQUEST){
-                                peer.sendMessage(PIECE, ByteBuffer.wrap(msg).getInt());  
-                            }
-                            else if(msgType == PIECE){
-                                index = ByteBuffer.wrap(Arrays.copyOfRange(msg, 0, 4)).getInt();
-                                counter = 0;
-                                filePieces[index] = new byte[msg.length - 4];
-                                for(int i = 4; i < msg.length; i++){
-                                    filePieces[index][counter] = msg[i];
-                                    counter++;
-                                }
-                                thisPeer.updateBitfield(index);
-                                thisPeer.updateNumOfPieces();
-                                if(!peer.isChoked()){
+                                    break;
+                                case UNCHOKE:
+                                    peer.unchoke();
+                                    logs.unchoked(thisPeer.getPeerID(), peer.peerID);
                                     peer.getPieceIndex(thisPeer.getBitfield(), peers.get(peer.peerID).getBitfield(), thisPeer.getBitfield().length);
-<<<<<<< HEAD
-                                }
-                                double rate = ((double)(msg.length + 5) / (endTime - startTime));
-                                if(peers.get(peer.getPeerID()).getHaveFile() == 1){
-                                    peer.setDownloadRate(-1);
-                                }
-                                else{
-                                    peer.setDownloadRate(rate);
-                                }
-                                logs.downloadingPiece(thisPeer.getPeerID(), peer.getPeerID(), index, thisPeer.getNumOfPieces());
-                                int downloaded = (thisPeer.getNumOfPieces() * 100) / (int)Math.ceil((double)common.getFileSize()/common.getPieceSize());
-                                StringBuffer sb = new StringBuffer();
-                                sb.append("\r").append("Downloaded: ");
-                                sb.append(downloaded).append("%").append(" Number of Pieces: ").append(thisPeer.getNumOfPieces());
-                                System.out.print(sb);
-                                peer.checkCompleted();
-                                for(int connection : peerConnections.keySet()){
-                                    peerConnections.get(connection).sendMessage(HAVE, index);
-                                }
-=======
                                     break;
                                 case INTERESTED:
                                     logs.receiveInterested(thisPeer.getPeerID(), peer.peerID);
@@ -1308,9 +1220,7 @@ public class peerProcess {
                                     break;
                                 default:
                                     break;
->>>>>>> 8e59b5a39e6a4609791d3cef70ae4e2493804d14
                             }
-                            
                         }
                         Thread.sleep(5000);
                         System.exit(0);
